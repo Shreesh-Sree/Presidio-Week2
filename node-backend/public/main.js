@@ -163,7 +163,7 @@ function renderTasks(tasks) {
           <p>${escapeHtml(task.description || 'No description')} • <span style="font-family: monospace;">${formattedDate}</span></p>
         </div>
       </div>
-      <button class="task-delete-btn" data-id="${task.id}">🗑</button>
+      <button class="task-delete-btn" data-id="${task.id}">Delete</button>
     `;
     
     // Toggle Event

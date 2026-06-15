@@ -10,7 +10,7 @@ To make learning interactive, the Node.js server hosts a **gorgeous dark-mode gl
 
 ---
 
-## 📂 Project Architecture
+## Project Architecture
 
 ```
 Presidio-Week2/
@@ -52,11 +52,11 @@ Presidio-Week2/
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 Both backends are configured to run locally. Ensure you have **Node.js (v18+)** and **Python (3.9+)** installed.
 
-### 🟢 1. Running the Node.js Express Server (Port 3000)
+### 1. Running the Node.js Express Server (Port 3000)
 1. Open a terminal and navigate to the `node-backend` directory:
    ```bash
    cd node-backend
@@ -71,7 +71,7 @@ Both backends are configured to run locally. Ensure you have **Node.js (v18+)** 
    ```
    *The Express server will start on port `3000` and serve the dashboard at [http://localhost:3000](http://localhost:3000).*
 
-### 🔵 2. Running the Python Flask Server (Port 5000)
+### 2. Running the Python Flask Server (Port 5000)
 1. Open a second terminal and navigate to the `flask-backend` directory:
    ```bash
    cd flask-backend
@@ -99,26 +99,26 @@ Both backends are configured to run locally. Ensure you have **Node.js (v18+)** 
 
 ---
 
-## 🕹️ Interactive Features to Explore
+## Interactive Features to Explore
 
 Open **[http://localhost:3000](http://localhost:3000)** in your browser and use the interactive tabs to explore:
 
-### 🧩 1. MVC Task Management
+### 1. MVC Task Management
 - **Topic**: MVC Design Pattern.
 - **Hands-on**: Add, view, complete, and delete tasks. You can switch target backends to compare how the Express Controller/Model flow matches Flask Blueprint routing.
 
-### 🛡️ 2. Middleware Sandbox
+### 2. Middleware Sandbox
 - **Topic**: Global, Router-level, and Route-specific request chains.
 - **Hands-on**:
   - Toggle the **Authorization Switch** (this injects an `x-api-key` header) and query the secure Node or Flask routes to see how route-specific middlewares authenticate requests.
   - Click the **Rate Limit Bomb** to send rapid queries to the Node task endpoint. You will exhaust the stateful rate limiter and witness a `429 Too Many Requests` error.
 
-### ⚡ 3. Async Performance Benchmarks
+### 3. Async Performance Benchmarks
 - **Topic**: Async operations, event loops, and non-blocking threads.
 - **Hands-on**:
   - Run Node Callback, Promise, and Async/Await endpoints to check response logs and notice execution steps.
   - Run the Flask Sync vs Async routes. The Async route uses `asyncio.gather` to trigger multiple actions concurrently, resulting in a **~3x reduction in response latency** compared to sequential blocking calls.
 
-### 🐛 4. Centralized Error Debugger
+### 4. Centralized Error Debugger
 - **Topic**: Exception handling, custom classes, and standard payloads.
 - **Hands-on**: Click various error triggers (Validation, Forbidden, Server Crash, Route 404) and inspect how both backends capture exceptions globally and return identical structured error payloads (timestamp, path, HTTP status, sanitized messages).
