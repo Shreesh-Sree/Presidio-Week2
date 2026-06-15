@@ -1,0 +1,16 @@
+{
+  "name": "node-backend",
+  "version": "1.0.0",
+  "description": "Node.js Express Backend for Week 2 Hands-on Project",
+  "main": "src/app.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "node src/app.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "cors": "^2.8.5",
+    "morgan": "^1.10.0"
+  }
+}

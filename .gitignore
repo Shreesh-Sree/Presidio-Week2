@@ -1,0 +1,17 @@
+# Node dependencies
+node-backend/node_modules/
+node-backend/npm-debug.log*
+
+# Python environments & caches
+flask-backend/venv/
+flask-backend/.venv/
+**/__pycache__/
+**/*.pyc
+flask-backend/.pytest_cache/
+
+# OS and Editor configs
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
