@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Node.js Microservices Architecture - Week 2</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Glow Elements -->
+  <div class="glow-bg glow-purple"></div>
+  <div class="glow-bg glow-cyan"></div>
+
+  <div class="container">
+    <!-- Main Header -->
+    <header class="main-header">
+      <div class="header-content">
+        <div class="badge">PRESIDIO INTERNSHIP - WEEK 2</div>
+        <h1>Microservices Backend Sandbox</h1>
+        <p class="subtitle">An advanced Node.js microservices layout demonstrating JWT auth, Role-Based Access Control (RBAC), Pagination, Filtering, Sorting, and GraphQL.</p>
+      </div>
+      <div class="server-statuses">
+        <div class="status-card" id="status-auth">
+          <div class="status-indicator offline"></div>
+          <div>
+            <span class="server-name">Auth Service</span>
+            <span class="server-port">Port 3001</span>
+          </div>
+        </div>
+        <div class="status-card" id="status-tasks">
+          <div class="status-indicator offline"></div>
+          <div>
+            <span class="server-name">Task Service</span>
+            <span class="server-port">Port 3002</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Sandbox Grid -->
+    <div class="sandbox-grid">
+      
+      <!-- LEFT COLUMN: AUTHENTICATION & SESSION STATS -->
+      <aside class="left-panel">
+        
+        <!-- Auth Form (Signed Out State) -->
+        <div class="card" id="card-auth-signed-out">
+          <h3>Authentication Access</h3>
+          <p class="card-desc">Log in with seeded accounts or register a new user with specific RBAC roles (intern or admin).</p>
+          
+          <div class="auth-tabs">
+            <button class="auth-tab-btn active" id="tab-login-btn">Login</button>
+            <button class="auth-tab-btn" id="tab-register-btn">Register</button>
+          </div>
+
+          <!-- Login Form -->
+          <form id="form-login" class="auth-form active-form">
+            <div class="form-group">
+              <label for="login-username">Username</label>
+              <input type="text" id="login-username" placeholder="e.g. intern_user" required>
+            </div>
+            <div class="form-group">
+              <label for="login-password">Password</label>
+              <input type="password" id="login-password" placeholder="e.g. password123" required>
+            </div>
+            <div class="seed-hint">Seed users: admin_user / intern_user (password: password123)</div>
+            <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+          </form>
+
+          <!-- Register Form -->
+          <form id="form-register" class="auth-form">
+            <div class="form-group">
+              <label for="reg-username">Username</label>
+              <input type="text" id="reg-username" placeholder="Choose username" required>
+            </div>
+            <div class="form-group">
+              <label for="reg-password">Password</label>
+              <input type="password" id="reg-password" placeholder="Choose password" required>
+            </div>
+            <div class="form-group">
+              <label for="reg-role">Access Role (RBAC)</label>
+              <select id="reg-role" required>
+                <option value="intern">Intern (Read, Create, Toggle)</option>
+                <option value="admin">Admin (Full access, including Delete)</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+          </form>
+        </div>
+
+        <!-- Session Status (Signed In State) -->
+        <div class="card hidden" id="card-auth-signed-in">
+          <h3>Active Session Profile</h3>
+          <p class="card-desc">Current signed JWT token payload verifying authentication state statelessly.</p>
+          
+          <div class="session-profile">
+            <div class="profile-row">
+              <span class="profile-label">Signed In:</span>
+              <span class="profile-value" id="session-username">username</span>
+            </div>
+            <div class="profile-row">
+              <span class="profile-label">RBAC Role:</span>
+              <span class="profile-value badge-role" id="session-role">role</span>
+            </div>
+            <div class="profile-row">
+              <span class="profile-label">Token Security:</span>
+              <span class="profile-value security-ok">JWT Authenticated</span>
+            </div>
+          </div>
+
+          <div class="form-group margin-top">
+            <label>JSON Web Token (JWT) String</label>
+            <div class="jwt-container">
+              <code id="session-jwt-string">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...</code>
+            </div>
+          </div>
+
+          <button class="btn btn-secondary btn-block margin-top" id="btn-logout">Logout</button>
+        </div>
+
+        <!-- Documentation Card -->
+        <div class="card card-margin card-glow">
+          <h3>Architectural Concept Index</h3>
+          <ul class="concept-list">
+            <li><strong>JWT Stateless Auth:</strong> Token signed by Auth service is decoded and verified locally by Task service.</li>
+            <li><strong>RBAC Rules:</strong> Deletion operations are gated by a role check (interns block, admins pass).</li>
+            <li><strong>REST API Design:</strong> Standardized query structures are mapped to pagination indices, filters, and sorts.</li>
+            <li><strong>Winston Logger:</strong> High performance logs are written to physical log streams on the backend.</li>
+          </ul>
+        </div>
+      </aside>
+
+      <!-- RIGHT COLUMN: INTERACTIVE DEMONSTRATIONS -->
+      <main class="right-panel">
+        
+        <!-- REST TASK MANAGEMENT CARD -->
+        <div class="card">
+          <div class="card-header-row">
+            <h3>Paginated REST API Task Manager</h3>
+            <button class="btn btn-warning" id="btn-clear-tasks">Clear All Tasks (Admin Only)</button>
+          </div>
+          <p class="card-desc">Demonstrates REST pagination, filtering, and sorting. Create and toggle items as Intern or Admin. Only Admins can clear or delete items.</p>
+
+          <!-- Input Fields to Create Task -->
+          <div class="create-task-section">
+            <h4>Create Task</h4>
+            <form id="form-create-task" class="inline-form">
+              <input type="text" id="task-title" placeholder="Task title..." required>
+              <input type="text" id="task-desc" placeholder="Task description (optional)...">
+              <button type="submit" class="btn btn-primary">Add Task</button>
+            </form>
+          </div>
+
+          <!-- Controls for sorting, filtering, and pagination -->
+          <div class="rest-controls-container">
+            <div class="control-row">
+              <!-- Filter Completed -->
+              <div class="input-element">
+                <label for="filter-completed">Filter Status</label>
+                <select id="filter-completed">
+                  <option value="all">All Tasks</option>
+                  <option value="true">Completed</option>
+                  <option value="false">Pending</option>
+                </select>
+              </div>
+
+              <!-- Search -->
+              <div class="input-element">
+                <label for="search-tasks">Search Query</label>
+                <input type="text" id="search-tasks" placeholder="Filter by text...">
+              </div>
+
+              <!-- Sorting -->
+              <div class="input-element">
+                <label for="sort-tasks">Sort Order</label>
+                <select id="sort-tasks">
+                  <option value="id:asc">ID (Oldest First)</option>
+                  <option value="title:asc">Title (A - Z)</option>
+                  <option value="title:desc">Title (Z - A)</option>
+                  <option value="createdAt:desc">Created Date (Newest)</option>
+                  <option value="createdAt:asc">Created Date (Oldest)</option>
+                </select>
+              </div>
+
+              <!-- Limit per page -->
+              <div class="input-element">
+                <label for="limit-tasks">Per Page</label>
+                <select id="limit-tasks">
+                  <option value="3">3 Items</option>
+                  <option value="5" selected>5 Items</option>
+                  <option value="10">10 Items</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tasks Display Container -->
+          <div class="task-list-box" id="task-list-container">
+            <div class="loading-state">Sign in to load task resources.</div>
+          </div>
+
+          <!-- Pagination Footer -->
+          <div class="pagination-footer">
+            <button class="btn btn-secondary" id="btn-prev-page" disabled>Previous</button>
+            <span class="page-indicator">Page <span id="current-page">1</span> of <span id="total-pages">1</span></span>
+            <button class="btn btn-secondary" id="btn-next-page" disabled>Next</button>
+          </div>
+        </div>
+
+        <!-- GRAPHQL COMPARATOR CARD -->
+        <div class="card card-margin">
+          <h3>GraphQL Comparator (REST vs GraphQL)</h3>
+          <p class="card-desc">Compare REST API payloads with GraphQL. Modify the query fields below to see how GraphQL solves over-fetching and returns only the fields you request.</p>
+          
+          <div class="graphql-editor-grid">
+            <div class="editor-pane">
+              <label for="graphql-query-input">GraphQL Query String</label>
+              <textarea id="graphql-query-input" rows="8" class="code-editor">query {
+  tasks(completed: false) {
+    title
+    completed
+  }
+}</textarea>
+              
+              <div class="editor-actions">
+                <button class="btn btn-secondary" id="btn-query-titles">Fetch Titles Only</button>
+                <button class="btn btn-secondary" id="btn-query-full">Fetch Full Fields</button>
+                <button class="btn btn-success" id="btn-run-graphql">Run GraphQL Query</button>
+              </div>
+            </div>
+
+            <div class="result-pane">
+              <label>GraphQL JSON Response Payload</label>
+              <pre class="json-display" id="graphql-json-display">{"message": "Run query to view response"}</pre>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+
+    <!-- LIVE CONSOLE TERMINAL -->
+    <section class="live-console">
+      <div class="console-header">
+        <div class="console-dots">
+          <span class="dot red"></span>
+          <span class="dot yellow"></span>
+          <span class="dot green"></span>
+        </div>
+        <div class="console-title">Live API Request Audit Log</div>
+        <button class="console-clear-btn" id="btn-clear-console">Clear Log</button>
+      </div>
+      <div class="console-body" id="console-stream">
+        <div class="console-line system-line">[SYSTEM] Microservices Dashboard Active. Authenticate to begin querying endpoints.</div>
+      </div>
+    </section>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+{
+  "name": "auth-service",
+  "version": "1.0.0",
+  "description": "Authentication and RBAC service for Week 2 Sandbox",
+  "main": "src/app.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "node src/app.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "cors": "^2.8.5",
+    "jsonwebtoken": "^9.0.2",
+    "bcryptjs": "^2.4.3",
+    "winston": "^3.11.0"
+  }
+}

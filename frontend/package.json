@@ -1,0 +1,14 @@
+{
+  "name": "frontend-service",
+  "version": "1.0.0",
+  "description": "Static web server serving the dashboard for Week 2 Sandbox",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node src/server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}

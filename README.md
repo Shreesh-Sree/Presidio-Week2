@@ -1,65 +1,113 @@
-# Presidio SDE Internship: Week 2 - Backend Engineering & Cloud Integration
+# Presidio SDE Internship: Week 2 - Advanced Node.js Microservices Sandbox
 
-Welcome to the **Week 2 Backend Architecture Sandbox**. This project is a hands-on, side-by-side study environment comparing **Node.js (Express)** and **Python (Flask)** implementations of essential backend engineering patterns:
-1. **MVC Design Pattern** (Model-View-Controller isolation)
-2. **Middleware Chains** (Global, Router-level, and Route-specific interceptors)
-3. **Asynchronous Execution Models** (Callbacks vs Promises vs Async/Await, and Python `asyncio.gather` concurrency)
-4. **Centralized Error Handling** (Operational exceptions mapping to standardized JSON payloads)
-
-To make learning interactive, the Node.js server hosts a **gorgeous dark-mode glassmorphic dashboard** that interfaces with both backends in real time, displaying execution benchmarks, rate limiters, and a live API request audit stream.
+Welcome to the restructured Week 2 Backend Architecture Sandbox. This repository contains a fully decoupled Node.js microservices stack designed to demonstrate advanced backend engineering, API design, security, and cloud deployment topics from the curriculum.
 
 ---
 
-## Project Architecture
+## Port Configuration Layout
+
+For local testing, the services run on separate ports:
+- **Port 3000**: Frontend Service (serves the web dashboard)
+- **Port 3001**: Auth Service (handles sign-up, sign-in, and JWT token issuance)
+- **Port 3002**: Task Service (manages tasks, JWT stateless authentication, RBAC, GraphQL, and Swagger UI)
+
+---
+
+## Project Structure
 
 ```
 Presidio-Week2/
-├── node-backend/                # Node.js + Express Backend
+├── auth-service/                # Port 3001
 │   ├── src/
-│   │   ├── config/              # App constants
-│   │   ├── controllers/         # Controller Layer (MVC)
-│   │   ├── middleware/          # Auth, Limiter & Error Middleware
-│   │   ├── models/              # Model Layer (MVC - In-memory CRUD)
-│   │   ├── routes/              # Express Routers
-│   │   │   ├── taskRoutes.js    # Task CRUD Router (MVC)
-│   │   │   └── asyncRoutes.js   # Callback, Promise, Async/Await Demo
-│   │   ├── utils/
-│   │   │   └── errors.js        # Custom Exception Classes & catchAsync Wrapper
-│   │   └── app.js               # Entry Point & Global Middleware Setup
-│   ├── public/                  # Frontend Static Dashboard
-│   │   ├── index.html           # Dashboard Structure
-│   │   ├── styles.css           # Custom Glassmorphic CSS Theme
-│   │   └── main.js              # Fetch Calls, Charts, Live Console Log Stream
-│   └── package.json             # Express, Cors & Morgan Dependencies
+│   │   ├── controllers/         # Handles signup, login, JWT token issuance
+│   │   ├── middleware/          # Winston logging middleware & error handlers
+│   │   ├── utils/               # JWT helper, Winston logger instance, custom error classes
+│   │   └── app.js               # Express entrypoint
+│   ├── Dockerfile               # Node alpine container setup
+│   └── package.json
 │
-├── flask-backend/               # Python + Flask Backend
-│   ├── app/
-│   │   ├── blueprints/          # Blueprint Routers (MVC)
-│   │   │   ├── task_routes.py   # Task CRUD Blueprint (MVC)
-│   │   │   └── async_routes.py  # Synchronous vs asyncio.gather Blueprint
-│   │   ├── middleware/
-│   │   │   └── decorators.py    # Custom functional decorators (Local Middleware)
-│   │   ├── models/
-│   │   │   └── task.py          # Model Layer (MVC - In-memory CRUD)
-│   │   ├── utils/
-│   │   │   └── errors.py        # Custom APIException mapper
-│   │   └── __init__.py          # Flask Application Factory & Global hooks
-│   ├── run.py                   # Flask Server Bootstrapper
-│   └── requirements.txt         # Flask, Flask-Cors, asgiref, httpx Dependencies
+├── task-service/                # Port 3002
+│   ├── src/
+│   │   ├── controllers/         # Tasks controllers with pagination, filter, sort
+│   │   ├── graphql/             # Custom GraphQL resolver to compare payloads
+│   │   ├── middleware/          # JWT authorization & restrictTo RBAC middleware
+│   │   ├── models/              # Pre-seeded task list model
+│   │   ├── routes/              # REST routes annotated with Swagger OpenAPI JSDocs
+│   │   ├── utils/               # Winston logger & custom exceptions
+│   │   └── app.js               # Express entrypoint + Swagger docs mount
+│   ├── Dockerfile               # Node alpine container setup
+│   └── package.json
 │
-└── README.md                    # Project Documentation (This file)
+├── frontend/                    # Port 3000
+│   ├── src/
+│   │   └── server.js            # Node Express static server
+│   ├── public/                  # Dashboard assets
+│   │   ├── index.html           # Main dashboard structure
+│   │   ├── styles.css           # Glassmorphism styling theme
+│   │   └── main.js              # REST queries, GraphQL parser, log stream
+│   └── package.json
+│
+├── .github/
+│   └── workflows/
+│       ├── deploy-ecs.yml       # CI/CD: Deploy to AWS ECS Fargate
+│       └── deploy-cloudrun.yml  # CI/CD: Deploy to Google Cloud Run
+│
+├── docker-compose.yml           # Local multi-container orchestration
+├── .gitignore
+└── README.md                    # Project documentation (this file)
 ```
 
 ---
 
 ## Getting Started
 
-Both backends are configured to run locally. Ensure you have **Node.js (v18+)** and **Python (3.9+)** installed.
+You can run this project locally using Node.js or orchestrate the entire stack using Docker Compose.
 
-### 1. Running the Node.js Express Server (Port 3000)
-1. Open a terminal and navigate to the `node-backend` directory:
+### Running with Docker Compose (Recommended)
+Make sure you have Docker installed and running on your system, then execute from the root directory:
+```bash
+docker compose up --build
+```
+This builds and launches all three containers.
+- Access the Frontend Dashboard at: http://localhost:3000
+- Access the Task Service API at: http://localhost:3002
+- View the Interactive Swagger Docs at: http://localhost:3002/api-docs
+
+### Running Locally without Docker
+Ensure you have Node.js v18+ installed on your system.
+
+#### 1. Start the Auth Service
+1. Open a terminal and navigate to the `auth-service` directory:
    ```bash
-   cd node-backend
+   cd auth-service
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the service:
+   ```bash
+   npm start
+   ```
+
+#### 2. Start the Task Service
+1. Open a second terminal and navigate to the `task-service` directory:
+   ```bash
+   cd task-service
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the service:
+   ```bash
+   npm start
+   ```
+
+#### 3. Start the Frontend Service
+1. Open a third terminal and navigate to the `frontend` directory:
+   ```bash
+   cd frontend
    ```
 2. Install dependencies:
    ```bash
@@ -69,56 +117,22 @@ Both backends are configured to run locally. Ensure you have **Node.js (v18+)** 
    ```bash
    npm start
    ```
-   *The Express server will start on port `3000` and serve the dashboard at [http://localhost:3000](http://localhost:3000).*
-
-### 2. Running the Python Flask Server (Port 5000)
-1. Open a second terminal and navigate to the `flask-backend` directory:
-   ```bash
-   cd flask-backend
-   ```
-2. Initialize and activate a virtual environment:
-   * **Windows (PowerShell)**:
-     ```powershell
-     python -m venv venv
-     .\venv\Scripts\Activate.ps1
-     ```
-   * **macOS / Linux**:
-     ```bash
-     python3 -m venv venv
-     source venv/bin/activate
-     ```
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-4. Start the server:
-   ```bash
-   python run.py
-   ```
-   *The Flask server will start on port `5000`.*
 
 ---
 
-## Interactive Features to Explore
+## Implemented Concept Details
 
-Open **[http://localhost:3000](http://localhost:3000)** in your browser and use the interactive tabs to explore:
+### 1. JWT & Role-Based Access Control (RBAC)
+- **Stateless Authentication**: Users sign in at the Auth Service and receive a JWT. When querying tasks, this token is sent in the `Authorization: Bearer <token>` header. The Task Service validates it statelessly using the shared secret.
+- **RBAC**: Enforces role access policies. Seeded user `admin_user` has `admin` privileges and can execute task deletions. Seeded user `intern_user` has `intern` privileges and is blocked from deletions, returning a 403 Forbidden payload.
 
-### 1. MVC Task Management
-- **Topic**: MVC Design Pattern.
-- **Hands-on**: Add, view, complete, and delete tasks. You can switch target backends to compare how the Express Controller/Model flow matches Flask Blueprint routing.
+### 2. Advanced API Design
+- **REST Pagination, Filtering, and Sorting**: The tasks API supports query parameters:
+  - Pagination: `/api/v1/tasks?page=1&limit=5`
+  - Filtering: `/api/v1/tasks?completed=true`
+  - Sorting: `/api/v1/tasks?sortBy=createdAt:desc`
+- **GraphQL vs REST**: To demonstrate over-fetching issues, the Task Service mounts a custom GraphQL resolver endpoint at `/api/v1/tasks/graphql`. The dashboard lets you query custom properties (such as fetching just titles) to compare GraphQL vs REST payloads.
+- **Swagger Documentation**: Native JSDoc tags within the routes generate OpenAPI schemas, exposing Swagger interactive API testing at `/api-docs`.
 
-### 2. Middleware Sandbox
-- **Topic**: Global, Router-level, and Route-specific request chains.
-- **Hands-on**:
-  - Toggle the **Authorization Switch** (this injects an `x-api-key` header) and query the secure Node or Flask routes to see how route-specific middlewares authenticate requests.
-  - Click the **Rate Limit Bomb** to send rapid queries to the Node task endpoint. You will exhaust the stateful rate limiter and witness a `429 Too Many Requests` error.
-
-### 3. Async Performance Benchmarks
-- **Topic**: Async operations, event loops, and non-blocking threads.
-- **Hands-on**:
-  - Run Node Callback, Promise, and Async/Await endpoints to check response logs and notice execution steps.
-  - Run the Flask Sync vs Async routes. The Async route uses `asyncio.gather` to trigger multiple actions concurrently, resulting in a **~3x reduction in response latency** compared to sequential blocking calls.
-
-### 4. Centralized Error Debugger
-- **Topic**: Exception handling, custom classes, and standard payloads.
-- **Hands-on**: Click various error triggers (Validation, Forbidden, Server Crash, Route 404) and inspect how both backends capture exceptions globally and return identical structured error payloads (timestamp, path, HTTP status, sanitized messages).
+### 3. Log Audits
+- Integrated **Winston** in both backends to record transaction logs. Logs are written to stdout and stored in `logs/combined.log` and `logs/error.log` for audits.

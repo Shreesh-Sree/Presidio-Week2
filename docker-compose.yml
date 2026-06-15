@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    container_name: auth-service-container
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - JWT_SECRET=presidio-super-secret-jwt-key-for-week-2
+      - JWT_EXPIRES_IN=2h
+      - LOG_LEVEL=info
+    volumes:
+      - auth-logs:/usr/src/app/logs
+
+  task-service:
+    build:
+      context: ./task-service
+      dockerfile: Dockerfile
+    container_name: task-service-container
+    ports:
+      - "3002:3002"
+    environment:
+      - PORT=3002
+      - JWT_SECRET=presidio-super-secret-jwt-key-for-week-2
+      - LOG_LEVEL=info
+    volumes:
+      - task-logs:/usr/src/app/logs
+    depends_on:
+      - auth-service
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend-container
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+    depends_on:
+      - task-service
+
+volumes:
+  auth-logs:
+  task-logs:

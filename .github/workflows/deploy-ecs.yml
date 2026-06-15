@@ -1,0 +1,80 @@
+name: Deploy to Amazon ECS
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY_AUTH: auth-service
+  ECR_REPOSITORY_TASK: task-service
+  ECS_SERVICE: presidio-service
+  ECS_CLUSTER: presidio-cluster
+  ECS_TASK_DEFINITION: .aws/task-definition.json
+  CONTAINER_NAME_AUTH: auth-service
+  CONTAINER_NAME_TASK: task-service
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Build, tag, and push Auth Service to Amazon ECR
+      id: build-image-auth
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_AUTH:$IMAGE_TAG ./auth-service
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY_AUTH:$IMAGE_TAG
+        echo "image=$ECR_REGISTRY/$ECR_REPOSITORY_AUTH:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+    - name: Build, tag, and push Task Service to Amazon ECR
+      id: build-image-task
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_TASK:$IMAGE_TAG ./task-service
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY_TASK:$IMAGE_TAG
+        echo "image=$ECR_REGISTRY/$ECR_REPOSITORY_TASK:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+    - name: Fill in the new Auth image ID in the Amazon ECS task definition
+      id: render-auth-container
+      uses: aws-actions/amazon-ecs-render-task-definition@v1
+      with:
+        task-definition: ${{ env.ECS_TASK_DEFINITION }}
+        container-name: ${{ env.CONTAINER_NAME_AUTH }}
+        image: ${{ steps.build-image-auth.outputs.image }}
+
+    - name: Fill in the new Task image ID in the Amazon ECS task definition
+      id: render-task-container
+      uses: aws-actions/amazon-ecs-render-task-definition@v1
+      with:
+        task-definition: ${{ steps.render-auth-container.outputs.task-definition }}
+        container-name: ${{ env.CONTAINER_NAME_TASK }}
+        image: ${{ steps.build-image-task.outputs.image }}
+
+    - name: Deploy Amazon ECS task definition
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+      with:
+        task-definition: ${{ steps.render-task-container.outputs.task-definition }}
+        service: ${{ env.ECS_SERVICE }}
+        cluster: ${{ env.ECS_CLUSTER }}
+        wait-for-service-stability: true

@@ -1,0 +1,20 @@
+{
+  "name": "task-service",
+  "version": "1.0.0",
+  "description": "Tasks management service for Week 2 Sandbox",
+  "main": "src/app.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "node src/app.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "cors": "^2.8.5",
+    "jsonwebtoken": "^9.0.2",
+    "winston": "^3.11.0",
+    "swagger-ui-express": "^5.0.0",
+    "swagger-jsdoc": "^6.2.8",
+    "graphql": "^16.8.1"
+  }
+}

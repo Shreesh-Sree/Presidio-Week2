@@ -1,17 +1,25 @@
-# Node dependencies
-node-backend/node_modules/
-node-backend/npm-debug.log*
+# Dependency directories
+node_modules/
+**/node_modules/
 
-# Python environments & caches
-flask-backend/venv/
-flask-backend/.venv/
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python environments and caches
+venv/
+.venv/
 **/__pycache__/
 **/*.pyc
-flask-backend/.pytest_cache/
+.pytest_cache/
 
-# OS and Editor configs
+# OS and Editor files
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
-*.log
+.env
+.env.local
